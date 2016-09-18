@@ -63,8 +63,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 
 
 	//open apps -- inserted here --
-	//var app = qlik.openApp('MyProject.qvf', config);
-	var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
+	var app = qlik.openApp('MyProject.qvf', config);
+	//var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
 
 
 	(function () {
@@ -86,9 +86,9 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		var value =that.find(".No").html().split(".")[1];
 		var len = $li.length;
 		var index = parseInt(that.index())+1;
-		var baseIndex=len/2;
+		var baseIndex=parseInt(len/2);
 		var left =index<baseIndex;
-		var moveDistance = len%2==0?(baseIndex -index+0.5)*420:(baseIndex -index)*420;
+		var moveDistance = len%2==0||len==1?(baseIndex -index+0.5)*420:(baseIndex -index)*420;
 		moveDistance = left?moveDistance:moveDistance*-1;
 		var baseDistance =-1*parseInt(that.parent().css("width"))/2;
 		if(type==3) return;
@@ -109,7 +109,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	function move($this,_mDistance,left,clickBaseDistance) {
 		var isLeft =left||$this.hasClass("left");
 		var moveEle =$this.parent().find(".rc-inv-list-slide-body");
-		var displayW =parseInt($this.parent().find(".rc-inv-list-body").css("width"));
+		var displayW =parseInt(window.innerWidth);
 		var distanceCount =-1*parseInt(moveEle.css("width"))-displayW*-1/2;
 		var moveDistance=typeof _mDistance=="undefined"?420:_mDistance;
 		var currDistance =clickBaseDistance||parseInt(moveEle.css("transform").split(",")[4]);
@@ -318,7 +318,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		$('.rc-inv-fix-box .'+typeValue[type]+' .rc-inv-list-slide-body').html(html);
 		if(type=="1"){
 			var index = parseInt(dataArray.length/2);
-			var that =$('.po .rc-inv-list-slide-body li:nth-child('+index+')');
+			var that =$('.po .rc-inv-list-slide-body li:nth-child('+(index+1)+')');
 			clickBill(that);
 		}
 
@@ -476,9 +476,9 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	}
 
 	//get objects -- inserted here --
-	//app.getObject('QV01','bmJrPXg');
-	app.getObject('QV01','FhhGD');				// server version
-	
+	app.getObject('QV01','bmJrPXg');
+	//app.getObject('QV01','FhhGD');				// server version
+
 	//create cubes and lists -- inserted here --
 	app.createCube({
 		"qInitialDataFetch": [
