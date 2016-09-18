@@ -63,7 +63,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 
 
 	//open apps -- inserted here --
-	var app = qlik.openApp('MyProject.qvf', config);
+	//var app = qlik.openApp('MyProject.qvf', config);
+	var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
 
 
 	(function () {
@@ -475,8 +476,9 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	}
 
 	//get objects -- inserted here --
-	app.getObject('QV01','bmJrPXg');
-
+	//app.getObject('QV01','bmJrPXg');
+	app.getObject('QV01','FhhGD');				// server version
+	
 	//create cubes and lists -- inserted here --
 	app.createCube({
 		"qInitialDataFetch": [
