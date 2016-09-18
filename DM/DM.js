@@ -63,8 +63,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 
 
 	//open apps -- inserted here --
-	var app = qlik.openApp('MyProject.qvf', config);
-	//var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
+	//var app = qlik.openApp('MyProject.qvf', config);
+	var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
 
 
 	(function () {
@@ -175,7 +175,6 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		else{
 			if(successTime%5===0&&isClickPoint){
 				console.log("resultData:",resultData);
-				var company = resultData[INV_INDEX+index_inv].data[0][5].qText;
 				if(clickType=="1"){
 					console.log("1",resultData[PO_INDEX+index_po]);
 					var data = resultData[PO_INDEX+index_po].data[0];
@@ -189,7 +188,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 						$(".error-tip").html(html);
 					}
 					$(".rc-PointMsg .pointMsg-date").html("");
-					$(".rc-PointMsg .company").html(company);
+					$(".rc-PointMsg .company").html(data[5].qText);
 					$(".rc-PointMsg .f-title").html("VENDOR_NUMBER");
 					$(".rc-PointMsg .sec-title").html("AMOUNT");
 					$(".rc-PointMsg .thir-title").html("CURRENCY");
@@ -211,7 +210,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 						$(".error-tip").html(html);
 					}
 					$(".rc-PointMsg .pointMsg-date").html(data[3].qText);
-					$(".rc-PointMsg .company").html(company);
+					$(".rc-PointMsg .company").html(data[7].qText);
 					$(".rc-PointMsg .f-title").html("PO_Number");
 					$(".rc-PointMsg .sec-title").html("Inventory_Item_Number");
 					$(".rc-PointMsg .thir-title").html("Transaction_Currency_Code");
@@ -233,7 +232,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					}
                     $(".rc-PointMsg .pointMsg-No").html("NO."+data[0].qText);
                     $(".rc-PointMsg .date").html(data[3].qText);
-					$(".rc-PointMsg .company").html(data[4].qText);
+					$(".rc-PointMsg .company").html(data[5].qText);
 					$(".rc-PointMsg .f-title").html("TOTAL_AMOUNT");
 					$(".rc-PointMsg .sec-title").html("VAT_AMOUNT");
 					$(".rc-PointMsg .thir-title").html("CURRENCY");
@@ -476,8 +475,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	}
 
 	//get objects -- inserted here --
-	app.getObject('QV01','bmJrPXg');
-	//app.getObject('QV01','FhhGD');				// server version
+	//app.getObject('QV01','bmJrPXg');
+	app.getObject('QV01','FhhGD');				// server version
 
 	//create cubes and lists -- inserted here --
 	app.createCube({
@@ -668,7 +667,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		"qInitialDataFetch": [
 			{
 				"qHeight": 400,
-				"qWidth": 7
+				"qWidth": 8
 			}
 		],
 		"qDimensions": [
@@ -778,6 +777,23 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				"qDef": {
 					"qFieldDefs": [
 						"PP_Line_Id-pp_line_id"
+					]
+				},
+				"qNullSuppression": false,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": false,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
+			},
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"Vendor_Name"
 					]
 				},
 				"qNullSuppression": false,
