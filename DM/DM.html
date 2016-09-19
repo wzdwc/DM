@@ -19,10 +19,11 @@
 	<link rel="stylesheet" href="DM.css">
 </head>
 <body role="document" style="overflow: auto">
+
 <!-- Fixed navbar -->
 <div id="rc_container" class="rc-container">
-	<!--<div class="clear" style="position: fixed;width: 200px;right: 0;padding: 20px;color: #fff;z-index: 999999999">-->
-	<!--clear all-->
+
+
 	<!--</div>-->
 	<div class="filter" id="QV01">
 
@@ -35,33 +36,33 @@
 			<circle cx="20" cy="20" r="15" class="arc"/>
 			<circle cx="20" cy="20" r="6" style="fill:#46d1d1"/>
 			<line x1="38" y1="16" x2="138" y2="16"  stroke-dasharray="0,1040"
-				  style="stroke:#64cad0;stroke-width:4" id="inv_s"/>
+				  style="stroke:#64cad0;stroke-width:4" id="inv_s" data-type="inv_real"/>
 			<line x1="37" y1="20" x2="138" y2="20" stroke-linecap="round"
 				  style="stroke:rgb(99,99,99);stroke-width:2" />
 			<line x1="38" y1="24" x2="138" y2="24"  stroke-dasharray="0,1040"
-				  style="stroke:#f83f71;stroke-width:4" id="inv_error"/>
+				  style="stroke:#f83f71;stroke-width:4" id="inv_error" data-type="inv_error" />
 			<circle cx="20" cy="60" r="15" class="arc"/>
 			<rect height="12" width="12" x="14" y="55" style="fill: #75a5d7" />
 			<line x1="38" y1="56" x2="138" y2="56" stroke-dasharray="0,1040"
-				  style="stroke:#64cad0;stroke-width:4"  id="re_s"/>
+				  style="stroke:#64cad0;stroke-width:4"  id="re_s" data-type="rc_real"/>
 			<line x1="37" y1="60" x2="138" y2="60" stroke-linecap="round"
 				  style="stroke:rgb(99,99,99);stroke-width:2"/>
 			<line x1="38" y1="64" x2="138" y2="64" stroke-dasharray="0,1400"
-				  style="stroke:#f83f71;stroke-width:4" id="re_error"/>
+				  style="stroke:#f83f71;stroke-width:4" id="re_error" data-type="rc_error" />
 			<circle cx="20" cy="100" r="15" class="arc"/>
 			<polygon points="20,90 11,107 29,107"
 					 style="fill:#6885db;stroke-width:1"/>
 			<line x1="38" y1="96" x2="138" y2="96"  stroke-dasharray="0,1040"
-				  style="stroke:#64cad0;stroke-width:4" id="po_s"/>
+				  style="stroke:#64cad0;stroke-width:4" id="po_s" data-type="po_real"/>
 			<line x1="37" y1="100" x2="138" y2="100" stroke-linecap="round"
 				  style="stroke:rgb(99,99,99);stroke-width:2"/>
 			<line x1="38" y1="104" x2="138" y2="104"  stroke-dasharray="0,1400"
-				  style="stroke:#f83f71;stroke-width:4" id="po_error"/>
+				  style="stroke:#f83f71;stroke-width:4" id="po_error" data-type="po_error" />
 		</svg>
 		<div class="rc-t-msg">
-			<p>invoice</p>
-			<p>receipt</p>
-			<p>po</p>
+			<p><input type="text" placeholder="invoice" data-type="3"> <span></span></p>
+			<p><input type="text" placeholder="receipt" data-type="2"><span></span></p>
+			<p><input type="text" placeholder="po" data-type="1"><span></span></p>
 		</div>
 
 	</div>
@@ -69,6 +70,9 @@
 
 	<!--center canvas-->
 	<div class="rc-canvas-body">
+		<div class="rc_commit">
+			<a href="#">commit</a>
+		</div>
 		<div class="rc-canvas " id="rc_canvas">
 		</div>
 		<div class="rc-loading-body" id="rc_loading">
@@ -76,6 +80,8 @@
 		</div>
 	</div>
 	<!--center canvas-->
+
+
 	<!--point show-->
 	<div class="rc-inv-list-c rc-PointMsg">
 		<div class="rc-icon-back">
@@ -92,7 +98,7 @@
 					<h3 class="company">天翔</h3>
 					<h4><i class="pointMsg-No">NO.EC00000010010</i> <span class="date">2016.2.21</span></h4>
 					<div class="inv-msg">
-						<p><span class="f-title">Goods</span><span sec-title>Number</span><span class="thir-title">Unit Price</span> </p>
+						<p><span class="f-title">Goods</span><span class="sec-title">Number</span><span class="thir-title">Unit Price</span> </p>
 						<p><span class="f-val">Goods</span><span class="sec-val">Number</span><span class="thir-val">Unit Price</span> </p>
 						<!--<p><span>Goods</span><span>Number</span><span>Unit Price</span> </p>-->
 					</div>

@@ -16,6 +16,7 @@
 	opacity: 1;
 }
 .rc-container {
+	position: relative;
 	display: block;
 	width: 100%;
 	background: -webkit-linear-gradient(#302f54 0%, #302f54 20%, #020204 100%) no-repeat; /* Safari 5.1 - 6.0 */
@@ -130,7 +131,34 @@
 	color: #a9aabe;
 }
 .rc-left-t .rc-t-msg p{
-	margin: 0;
+	margin: 8px 0;
+	width: 120px;
+	background: rgba(0,0,0,0);
+	border-radius: 5px;
+	height: 30px;
+	border: 1px solid #fff;
+	position: relative;
+	line-height: 27px;
+}
+.rc-left-t .rc-t-msg p input{
+	height: 30px;
+	background: rgba(0,0,0,0);
+	padding-left: 5px;
+	border: none;
+	width: 100px;
+	display: inline-block;
+	vertical-align: middle;
+	color: #fff;
+}
+.rc-left-t .rc-t-msg p span{
+	background: url("icon-search.png");
+	background-size: 100%;
+	width: 18px;
+	height: 17px;
+	position: absolute;
+	right: 4px;
+	top: 6px;
+	cursor: pointer;
 }
 .rc-canvas svg line{
 	-webkit-transition: stroke-dasharray 2s;
@@ -294,7 +322,6 @@
 .rc-inv-list .rc-invoice .rc-inv-box .count{
 	font-size: 0.648rem;
 	color: #fff;
-	font-family: ??????;
 	font-weight: 400;
 	text-align: left;
 	margin: 17px 0 0 0;
@@ -360,4 +387,20 @@
 
 .rc-inv-list-c .company{
 	color: #FFFFFF;
+}
+
+.rc_commit{
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 20px ;
+}
+.rc_commit a{
+	display: block;
+	padding: 10px 20px;
+	color: #fff;
+	background: #52CC52;
+	border-radius: 5px;
+	font-size: 20px;
 }

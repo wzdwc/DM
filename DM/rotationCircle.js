@@ -469,7 +469,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
         }
         RC.clear=function(){
             if(RC.group.scale) RC.reStart();
-            cancelAnimationFrame(RC.anim);
+            //cancelAnimationFrame(RC.anim);
             // RC.stop=false;
             RC.rotaAngle=0;
             RC.layer={};
