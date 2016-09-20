@@ -3,7 +3,7 @@
  */
 define(['./konva',"./requestAnimationFrame"],function(Konva) {
 
-    var RC ={
+    var _RC ={
         // public
         version: '1.0.2',
         // private
@@ -14,7 +14,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
         anim:function(){},
         stop:false,
         angleReturn:0,
-        angularSpeed :600,
+        angularSpeed :1000,
         rotaAngle :0,
         iscomplete:false,
         complete:function(){
@@ -35,21 +35,21 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
     };
 
     (function(){
-        RC.init =function(){
+        _RC.init =function(){
             var po_group,rc_group,inv_group,
                 Arc_po_in,Arc_po,Arc_rc,Arc_rc_in,Arc_inv,Arc_inv_in,
                 textpath_inv,textpath_rc,textpath_po;
             Konva.angleDeg = false;
             //获取坐标�?
             this.stage = new Konva.Stage({
-                container: RC.ele_id,
-                width: RC.winW,
-                height: RC.winH
+                container: _RC.ele_id,
+                width: _RC.winW,
+                height: _RC.winH
             });
             this.layer = new Konva.Layer();
             this.group = new Konva.Group({
-                x:RC.winW/2,
-                y:RC.winH/2
+                x:_RC.winW/2,
+                y:_RC.winH/2
             });
             po_group = new Konva.Group({
                 x:0,
@@ -66,9 +66,9 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 y:0,
                 rotation:Math.PI/180*155
             });
-            RC.circle = new Konva.Circle({
-                x:RC.winW/2,
-                y:RC.winH/2,
+            _RC.circle = new Konva.Circle({
+                x:_RC.winW/2,
+                y:_RC.winH/2,
                 radius: 279,
                 stroke: 'rgba(0,0,0,0)',
                 strokeWidth: 1
@@ -88,7 +88,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 y:0,
                 innerRadius: 280,
                 outerRadius: 300,
-                angle: Math.PI/180*110*RC.data[0],
+                angle: Math.PI/180*110*_RC.data[0],
                 name:"po_real",
                 fill: '#3fadb2',
                 strokeWidth: 1
@@ -98,9 +98,9 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 y:0,
                 innerRadius: 280,
                 outerRadius: 300,
-                angle: Math.PI/180*110*(1-RC.data[0]),
+                angle: Math.PI/180*110*(1-_RC.data[0]),
                 name:"po_error",
-                rotation:Math.PI/180*110*RC.data[0],
+                rotation:Math.PI/180*110*_RC.data[0],
                 fill: '#cd3664',
                 strokeWidth: 1
             });
@@ -122,7 +122,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 y:0,
                 innerRadius: 280,
                 outerRadius: 300,
-                angle: Math.PI/180*110*RC.data[1],
+                angle: Math.PI/180*110*_RC.data[1],
                 name:"rc_real",
                 fill: '#3fadb2',
                 strokeWidth: 1
@@ -132,8 +132,8 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 y:0,
                 innerRadius: 280,
                 outerRadius: 300,
-                angle: Math.PI/180*110*(1-RC.data[1]),
-                rotation:Math.PI/180*110*RC.data[1],
+                angle: Math.PI/180*110*(1-_RC.data[1]),
+                rotation:Math.PI/180*110*_RC.data[1],
                 name:"rc_error",
                 fill: '#cd3664',
                 strokeWidth: 1
@@ -157,7 +157,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 y:0,
                 innerRadius: 280,
                 outerRadius: 300,
-                angle: Math.PI/180*110*RC.data[2],
+                angle: Math.PI/180*110*_RC.data[2],
                 name:"inv_real",
                 fill: '#3fadb2',
                 strokeWidth: 1
@@ -168,8 +168,8 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 innerRadius: 280,
                 outerRadius: 300 ,
                 name:"inv_error",
-                angle: Math.PI/180*110*(1-RC.data[2]),
-                rotation:Math.PI/180*110*RC.data[2],
+                angle: Math.PI/180*110*(1-_RC.data[2]),
+                rotation:Math.PI/180*110*_RC.data[2],
                 fill: '#cd3664',
                 strokeWidth: 1
             });
@@ -208,44 +208,44 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 text: '  P               O',
                 data: 'M 238 667.5 a 300,300 0 0 0 282 2'
             });
-            RC.group.add(po_group);
-            RC.group.add(rc_group);
-            RC.group.add(inv_group);
-            RC.group.add(Arc_po);
-            RC.group.add(Arc_rc);
-            RC.group.add(Arc_inv);
-            RC.group.add(textpath_inv);
-            RC.group.add(textpath_rc);
-            RC.group.add(textpath_po);
-            RC.layer.add(RC.group);
-            RC.layer.add(RC.circle);
-            RC.stage.add(RC.layer);
+            _RC.group.add(po_group);
+            _RC.group.add(rc_group);
+            _RC.group.add(inv_group);
+            _RC.group.add(Arc_po);
+            _RC.group.add(Arc_rc);
+            _RC.group.add(Arc_inv);
+            _RC.group.add(textpath_inv);
+            _RC.group.add(textpath_rc);
+            _RC.group.add(textpath_po);
+            _RC.layer.add(_RC.group);
+            _RC.layer.add(_RC.circle);
+            _RC.stage.add(_RC.layer);
             this.complete();
             bind();
             animate();
         };
 
        var animate =function() {
-            if(RC.stop) {
-                RC.group.rotate( -RC.angleReturn);
-                RC.layer.draw();
-                RC.angleReturn =0;
+            if(_RC.stop) {
+                _RC.group.rotate( -_RC.angleReturn);
+                _RC.layer.draw();
+                _RC.angleReturn =0;
                 return;
             }
-            RC.group.rotate( 2 * Math.PI / RC.angularSpeed);
-            RC.angleReturn += 2 * Math.PI / RC.angularSpeed;
-            RC.layer.draw();
-            RC.anim = requestAnimationFrame(animate);
+           _RC.group.rotate( 2 * Math.PI / _RC.angularSpeed);
+           _RC.angleReturn += 2 * Math.PI / _RC.angularSpeed;
+           _RC.layer.draw();
+           _RC.anim = requestAnimationFrame(animate);
         }
         function bind(){
-            RC.stage.on('click tap',function(evt){
-                RC.stop=true;
+            _RC.stage.on('click tap',function(evt){
+                _RC.stop=true;
                 var shape = evt.target;
                 if(shape._id!="7"&&shape.className=="Arc"){
-                    RC.clickPoint(shape);
+                    _RC.clickPoint(shape);
                 }
             });
-            RC.stage.on("mouseover",function(evt){
+            _RC.stage.on("mouseover",function(evt){
                 var shape = evt.target;
                 if(shape._id!="7"&&shape.className=="Arc"){
                   //  console.log(shape);
@@ -254,33 +254,31 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                         shadowBlur: 10,
                         shadowOpacity: 0.8
                     });
-                    RC.layer.draw();
+                    _RC.layer.draw();
                 }
             });
-            RC.stage.on("mouseout",function(evt){
+            _RC.stage.on("mouseout",function(evt){
                 var shape = evt.target;
                 if(shape._id!="7"&&shape.className=="Arc"){
                     shape.setAttrs({
                         shadowBlur: 0
                     });
-                    RC.layer.draw();
+                    _RC.layer.draw();
                 //    console.log(shape);
                 }
             });
         }
 
-        RC.clear=function(){
-            var _element =document.querySelector("canvas");
-            if(_element.parentNode){
-                _element.parentNode.removeChild(_element);
-            }
-            RC.iscomplete =false;
-            RC.stop=false;
-            RC.rotaAngle=0;
-            RC.angleReturn=0;
-            cancelAnimationFrame(RC.anim);
+        _RC.clear=function(){
+            cancelAnimationFrame(_RC.anim);
+            var _element =document.getElementById("rc_canvas");
+            _element.innerHTML ="";
+            _RC.iscomplete =false;
+            _RC.stop=false;
+            _RC.rotaAngle=0;
+            _RC.angleReturn=0;
         }
     }());
 
-    return RC;
+    return _RC;
 });

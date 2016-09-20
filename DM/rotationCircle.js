@@ -16,7 +16,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             _anim:{},
             stop:false,
             angleReturn:0,
-            angularSpeed :600,
+            angularSpeed :1000,
             scaleGroup:2.5,
             rotaAngle :0,
             angleAdd:5,
@@ -154,7 +154,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                         y: 8
                     });
                     if(isLast) {
-                           animate();
+                            animate();
                            RC.complete();
                     }
                     wedge.add(cachedText);
@@ -379,12 +379,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             });
             RC._anim = new Konva.Animation(function(frame) {
                 animateWheel( RC.group, frame);
-            },  RC.layer);
-
-            // wait one second and then spin the star
-            setTimeout(function() {
-                RC._anim.start();
-            });
+            },  RC.layer).start();
         }
 
         function animateWheel( ele, frame) {
@@ -468,19 +463,20 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             return linePoints;
         }
         RC.clear=function(){
-            if(RC.group.scale) RC.reStart();
-            //cancelAnimationFrame(RC.anim);
-            // RC.stop=false;
+            //if(RC.group.scale) RC.reStart();
+            cancelAnimationFrame(RC.anim);
+            RC.stop=false;
+            if(this._anim.stop) this._anim.stop();
             RC.rotaAngle=0;
-            RC.layer={};
-            RC.stage={};
-            RC.group={};
-            RC.dataFull={};
-            RC.dataCirl={};
-            RC.dataRect={};
-            RC.dataPlg={};
+            RC.layer=null;
+            RC.stage=null;
+            RC.group=null;
+            RC.dataFull=null;
+            RC.dataCirl=null;
+            RC.dataRect=null;
+            RC.dataPlg=null;
             RC.angleAdd=5;
-            RC.dataLineMsg={};
+            RC.dataLineMsg=null;
             if(typeof RC._anim==="function") RC._anim.stop();
             RC.angleReturn=0;
             var _element =document.getElementById("rc_canvas");

@@ -73,8 +73,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	};
 
 	//open apps -- inserted here --
-	//var app = qlik.openApp('MyProject.qvf', config);
-	var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
+	var app = qlik.openApp('MyProject.qvf', config);
+	//var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
 
 	function commafy(num) {
 		//1.先去除空格,判断是否空值和非数
@@ -414,6 +414,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 
 	function draw(){
 		loadingShow();
+		RC.clear();
+		rcX.clear();
 		if(resultData[INV_INDEX+index_inv].data.length<=50&&resultData[RC_INDEX+index_rc].data.length<=50&&resultData[PO_INDEX+index_po].data.length<=50) {
 			if(isComplete){							//prev animation is completed
 				isComplete = false;
@@ -421,7 +423,6 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				console.log("clear interval");
 				console.time("happy");
 				console.log("resultData:",resultData);
-				RC.clear();
 				findError = searcherror(resultData);
 				RC.RotateCircle({
 					dataCirl:resultData[INV_INDEX+index_inv],
@@ -558,8 +559,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	}
 
 	//get objects -- inserted here --
-	//app.getObject('QV01','HszeAa');
-	app.getObject('QV01','FhhGD');				// server version
+	app.getObject('QV01','HszeAa');
+	//app.getObject('QV01','FhhGD');				// server version
 
 	//create cubes and lists -- inserted here --
 	app.createCube({
