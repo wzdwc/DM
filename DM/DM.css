@@ -136,7 +136,7 @@
 	background: rgba(0,0,0,0);
 	border-radius: 5px;
 	height: 30px;
-	border: 1px solid #fff;
+	border: 1px solid rgb(99,99,99);
 	position: relative;
 	line-height: 27px;
 }
@@ -194,13 +194,13 @@
 
 .rc.email{
 	display: none;
-	height: 200px;
+	height: 100px;
 	width: 100%;
 	position: fixed;
 	z-index: 9999999;
 	bottom: 0;
 	padding-left: 150px;
-	padding-top: 100px;
+	padding-top: 0px;
 	background: -webkit-linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%) no-repeat; /* Safari 5.1 - 6.0 */
 	background: -o-linear-gradient(rgba(0,0,0,0) 0%,  rgba(0,0,0,1) 100%) no-repeat; /* Opera 11.6 - 12.0 */
 	background: -moz-linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%) no-repeat; /* Firefox 3.6 - 15 */
@@ -368,7 +368,7 @@
 	width: 200px;
 	position: fixed;
 	z-index: 2;
-	height: 800px;
+	height: 500px;
 	top: 200px;
 	left: 0;
 }

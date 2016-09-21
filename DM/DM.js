@@ -93,6 +93,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			while (reg.test(num)) {
 				num = num.replace(reg, "$1,$2");
 			}
+			num += ".00";
 		} else {
 			var intPart = num.substring(0, index);
 			var pointPart = num.substring(index + 1, num.length);
@@ -148,8 +149,11 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		that.parent().find("li").removeClass("active");
 		that.addClass("active");
 		move($this,moveDistance,left,baseDistance);
-		formSelect[name] =1;
+		if(formSelect['po_number']==1) app.field('po_number').clear();
+		if(formSelect['Document_Number(receipt_no)']==1) app.field('Document_Number(receipt_no)').clear();
+		if(formSelect['INVOICE_NO']==1) app.field('INVOICE_NO').clear();
 		app.field(name).selectMatch(value, true);
+		formSelect[name] =1;
 		isClickRect_Po =true;
 		if(type==1) isClickRect_Receipt =false;
 		if(type==2) isClickRect_Receipt =true;
@@ -189,6 +193,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		$(window).resize(function (){
 			$("#rc_container").css("height",window.innerHeight);
 			$(".rc-lists").css("height",window.innerHeight);
+			$(".filter").css("height",window.innerHeight-200);
 			if(successTime!==0&&successTime%5===0&&!isClickPoint){
 				draw();
 			}
@@ -230,18 +235,11 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			}
 			else{
 				console.log("resultData:",resultData);
+
 				if(clickType=="1"){
 					console.log("1",resultData[PO_INDEX+index_po]);
 					var data = resultData[PO_INDEX+index_po].data[0];
 					$(".rc-PointMsg .pointMsg-No").html("NO."+data[0].qText);
-					if(data[1].qText==="1"){
-						$(".rc-PointMsg .rc-invoice").addClass("error");
-						var html='';
-						html+='<polygon points="0,0 10,0 8,20 2,20 "';
-						html+='style="fill:Red;stroke-width:1"/>';
-						html+='<rect height="6" width="6" x="2" y="22" style="fill: Red" />';
-						$(".error-tip").html(html);
-					}
 					$(".rc-PointMsg .pointMsg-date").html("");
 					$(".rc-PointMsg .company").html(data[5].qText);
 					$(".rc-PointMsg .f-title").html("VENDOR_NUMBER");
@@ -256,14 +254,6 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					console.log("2",resultData[RC_INDEX+index_rc]);
 					var data = resultData[RC_INDEX+index_rc].data[0];
 					$(".rc-PointMsg .pointMsg-No").html("NO."+data[0].qText);
-					if(data[1].qText==="1"){
-						$(".rc-PointMsg .rc-invoice").addClass("error");
-						var html='';
-						html+='<polygon points="0,0 10,0 8,20 2,20 "';
-						html+='style="fill:Red;stroke-width:1"/>';
-						html+='<rect height="6" width="6" x="2" y="22" style="fill: Red" />';
-						$(".error-tip").html(html);
-					}
 					$(".rc-PointMsg .pointMsg-date").html(data[3].qText);
 					$(".rc-PointMsg .company").html(data[7].qText);
 					$(".rc-PointMsg .f-title").html("PO_Number");
@@ -277,22 +267,14 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				if(clickType=="3"){
 					console.log("3",resultData[INV_INDEX+index_inv]);
 					var data = resultData[INV_INDEX+index_inv].data[0];
-					if(data[1].qText==="1"){
-						$(".rc-PointMsg .rc-invoice").addClass("error");
-						var html='';
-						html+='<polygon points="0,0 10,0 8,20 2,20 "';
-						html+='style="fill:Red;stroke-width:1"/>';
-						html+='<rect height="6" width="6" x="2" y="22" style="fill: Red" />';
-						$(".error-tip").html(html);
-					}
 					$(".rc-PointMsg .pointMsg-No").html("NO."+data[0].qText);
 					$(".rc-PointMsg .date").html(data[3].qText);
 					$(".rc-PointMsg .company").html(data[5].qText);
 					$(".rc-PointMsg .f-title").html("TOTAL_AMOUNT");
-					$(".rc-PointMsg .sec-title").html("VAT_AMOUNT");
+					$(".rc-PointMsg .sec-title").html("GROSS_AMOUNT");
 					$(".rc-PointMsg .thir-title").html("CURRENCY");
 					$(".rc-PointMsg .f-val").html(commafy(data[6].qText));
-					$(".rc-PointMsg .sec-val").html(commafy(data[8].qText));
+					$(".rc-PointMsg .sec-val").html(commafy(data[4].qText));
 					$(".rc-PointMsg .thir-val").html(data[7].qText);
 					$(".rc-PointMsg .count").html(commafy(data[4].qText));
 				}
@@ -309,6 +291,17 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					getHtml(invData,3,errorMsg);
 					$(".rc-lists,.email").show();
 				}else{
+					if(data[1].qText==="1"){
+						var errorMsg =resultData[INV_INDEX+index_inv].data[0][9].qText;
+						var html='';
+						html+='<div class="icon" title="'+errorMsg+'">';
+						html+='<svg width="40" height="60" >';
+						$(".rc-PointMsg .rc-invoice").addClass("error");
+						html+='<polygon points="0,0 10,0 8,20 2,20 "';
+						html+='style="fill:Red;stroke-width:1"/>';
+						html+='<rect height="6" width="6" x="2" y="22" style="fill: Red" />';
+						$(".rc-PointMsg .icon").html(html);
+					}
 					$(".rc-PointMsg").show();
 				}
 			}
