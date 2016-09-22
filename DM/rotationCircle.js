@@ -19,6 +19,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             angularSpeed :1000,
             scaleGroup:2.5,
             rotaAngle :0,
+            zoom :false,
             angleAdd:5,
             anim_rotate:false,
             complete:function(){
@@ -65,6 +66,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 this.stage.off('contentMouseup contentTouchend');
                 //this.stage.off('click');
                 if(this._anim.stop) this._anim.stop();
+                bind();
                 animate();
         };
 
@@ -164,38 +166,8 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             wedge.add(box);
             RC.group.add(wedge);
         }
-        function bind(){
-            var dblclick = false;
-            function  circleClick() {
-                if(RC.stop){
-                    RC.stop=false;
-                    animate();
-                }else {
-                    RC.stop= true;
-                }
-            }
-            RC.circle.on('click tap',circleClick);
-            RC.circle.on('dblclick dbltap',function(){
-                if(!dblclick){
-                    var scale = 1;
-                    RC.circle.scale({x:scale,y:scale});
-                    RC.circle.x(440*RC.scaleGroup);
-                    RC.group.scale({x:scale,y:scale});
-                    RC.group.x(440*RC.scaleGroup);
-                    RC.layer.draw();
-                    RC.circle.off('click tap');
-                    dragWheel();
-                    dblclick=true;
-                    cancelAnimationFrame(RC.anim);
-                }else{
-                    dblclick = false;
-                    RC.circle.on('click tap',circleClick);
-                    RC.reStart();
-                }
-            });
-            //�ƶ���
 
-        }
+
         RC.init= function(){
             console.log("loading");
             var loading = document.getElementById("rc_loading");
@@ -280,19 +252,86 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             //�¼�����
             bind();
             //����
-
-//        var angularSpeed = 10;
-//
-//        anim = new Konva.Animation(function(frame) {
-//            var angleDiff = frame.timeDiff * angularSpeed / 1000;
-//            group.rotate(angleDiff);
-//            //hexagon.setX(amplitude * Math.sin(frame.time * 2 * Math.PI / period) + centerX);
-//        }, layer)
-// //        anim.start();
-
+            RC.circle.on('dblclick dbltap',function(){
+                if(!RC.zoom){
+                    zoomCanvas();
+                }else{
+                    RC.zoom = false;
+                    RC.circle.on('click tap',circleClick);
+                    RC.reStart();
+                }
+            });
         };
 
+        function zoomCanvas() {
+            RC.stage.off('contentTouchstart');
+            RC.stage.off('contentTouchmove');
+            RC.stage.off('contentTouchend');
+            RC.circle.off('click tap');
+            var scale = 1;
+            RC.circle.scale({x:scale,y:scale});
+            RC.circle.x(440*RC.scaleGroup);
+            RC.group.scale({x:scale,y:scale});
+            RC.group.x(440*RC.scaleGroup);
+            RC.layer.draw();
+            dragWheel();
+            RC.zoom=true;
+            cancelAnimationFrame(RC.anim);
+        }
+        function bind(){
+            var lastdist =0;
+            var startDist = 0;
+            function  circleClick() {
+                if(RC.stop){
+                    RC.stop=false;
+                    animate();
+                }else {
+                    RC.stop= true;
+                }
+            }
+            RC.circle.on('click tap',circleClick);
+            RC.stage.on('contentTouchend',function (evt) {
+                if(lastdist>startDist){
+                    zoomCanvas();
+                }
+            //    $(".touch-msg").html("touchStartDistance: "+startDist+" endDistance: " +lastdist);
+                startDist =0;
+            });
 
+            RC.stage.on('contentTouchstart',function (evt) {
+                var touch1 = evt.evt.touches[0];
+                var touch2 = evt.evt.touches[1];
+                if(touch1 && touch2) {
+                    startDist = getFingerDistance({
+                        x: touch1.clientX,
+                        y: touch1.clientY
+                    }, {
+                        x: touch2.clientX,
+                        y: touch2.clientY
+                    });
+
+                }
+            //    $(".touch-msg").html("touchStartDistance: "+startDist);
+            })
+            RC.stage.on('contentTouchmove',function (evt) {
+                console.log(evt);
+                var touch1 = evt.evt.touches[0];
+                var touch2 = evt.evt.touches[1];
+                if(touch1 && touch2) {
+                    lastdist = getFingerDistance({
+                        x: touch1.clientX,
+                        y: touch1.clientY
+                    }, {
+                        x: touch2.clientX,
+                        y: touch2.clientY
+                    });
+                }
+            })
+        }
+
+        function getFingerDistance(p1, p2) {
+            return Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.y - p1.y), 2));
+        }
 
 
        var animate=function() {
@@ -315,40 +354,84 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             RC.group.lastRotation = 0;
             RC.group.angularVelocity = 0;
             RC.group.controlled = false;
+            var lastdist =0;
+            var startDist = 0;
             var startAngle = 0,endAngle = 0,rotaAngle2=0;
-            RC.stage.on('mousedown touchstart', function() {
+            var finger =0;
+            RC.stage.on('mousedown touchstart', function(evt) {
                 RC.group.angularVelocity = 0;
                 RC.group.controlled = true;
             });
-            RC.stage.on('contentMousedown  contentTouchstart', function() {
-                if( RC.group.controlled) {
-                    var mousePos = RC.stage.getPointerPosition();
-                    var x =  RC.group.getX() - mousePos.x;
-                    var y =  RC.group.getY() - mousePos.y;
-                    startAngle = Math.atan(y / x);
+            RC.stage.on('contentMousedown  contentTouchstart', function(evt) {
+                finger = evt.evt.touches.length;
+                if(finger>1){
+                    var touch1 = evt.evt.touches[0];
+                    var touch2 = evt.evt.touches[1];
+                    if(touch1 && touch2) {
+                        startDist = getDistance({
+                            x: touch1.clientX,
+                            y: touch1.clientY
+                        }, {
+                            x: touch2.clientX,
+                            y: touch2.clientY
+                        });
+                    }
+                   // $(".touch-msg").html("start:"+"touchStartDistance: "+startDist+" endDistance: " +lastdist);
+                }else {
+                    if (RC.group.controlled) {
+                        var mousePos = RC.stage.getPointerPosition();
+                        var x = RC.group.getX() - mousePos.x;
+                        var y = RC.group.getY() - mousePos.y;
+                        startAngle = Math.atan(y / x);
+                    }
                 }
             });
-            RC.stage.on('contentMousemove contentTouchmove', function() {
-                if( RC.group.controlled) {
-                    var mousePos = RC.stage.getPointerPosition();
-                    var x =  RC.group.getX() - mousePos.x;
-                    var y =  RC.group.getY() - mousePos.y;
-                    var rotaAngle =(Math.atan(y / x)-startAngle)*0.4;
-                    var setRota  =rotaAngle;
-                    RC.angleReturn += rotaAngle;
-                    RC.group.rotate(setRota);
+            RC.stage.on('contentMousemove contentTouchmove', function(evt) {
+                finger = evt.evt.touches.length;
+                if(finger>1){
+                    var touch1 = evt.evt.touches[0];
+                    var touch2 = evt.evt.touches[1];
+                    if(touch1 && touch2) {
+                        lastdist = getDistance({
+                            x: touch1.clientX,
+                            y: touch1.clientY
+                        }, {
+                            x: touch2.clientX,
+                            y: touch2.clientY
+                        });
+
+                    }
+                    //$(".touch-msg").html("touchStartDistance: "+startDist+" endDistance: " +lastdist);
+                }else {
+                    if (RC.group.controlled) {
+                        var mousePos = RC.stage.getPointerPosition();
+                        var x = RC.group.getX() - mousePos.x;
+                        var y = RC.group.getY() - mousePos.y;
+                        var rotaAngle = (Math.atan(y / x) - startAngle) * 0.4;
+                        var setRota = rotaAngle;
+                        RC.angleReturn += rotaAngle;
+                        RC.group.rotate(setRota);
+                    }
                 }
             });
-            RC.stage.on('contentMouseup contentTouchend', function() {
-                RC.group.controlled = false;
-                var mousePos = RC.stage.getPointerPosition();
-                var x =  RC.group.getX() - mousePos.x;
-                var y =  RC.group.getY() - mousePos.y;
-                endAngle = Math.atan(y / x);
-               // console.log("contentTouchend:"+rotaAngle2);
-                if( RC.group.angularVelocity==0){
-                    rotaAngle2 +=endAngle -startAngle;
-                    //   anim_rotate =false;
+            RC.stage.on('contentMouseup contentTouchend', function(evt) {
+                if(finger>1){
+                    if(lastdist<startDist){
+                        RC.zoom = false;
+                        RC.reStart();
+                    }
+//                    $(".touch-msg").html("touchStartDistance: "+startDist+" endDistance1: " +lastdist);
+                }else {
+                    RC.group.controlled = false;
+                    var mousePos = RC.stage.getPointerPosition();
+                    var x = RC.group.getX() - mousePos.x;
+                    var y = RC.group.getY() - mousePos.y;
+                    endAngle = Math.atan(y / x);
+                    // console.log("contentTouchend:"+rotaAngle2);
+                    if (RC.group.angularVelocity == 0) {
+                        rotaAngle2 += endAngle - startAngle;
+                        //   anim_rotate =false;
+                    }
                 }
             });
             RC.stage.on("click tap",function(evt){
@@ -362,8 +445,8 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                     //console.log(shape.getAttrs("stroke").stroke);
                     shape.setAttrs({
                         shadowColor: '#fff',
-                        shadowBlur: 5,
-                        shadowOpacity: 0.8
+                        shadowBlur: 20,
+                        shadowOpacity: 0.9
                     });
 
                 }
@@ -475,6 +558,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             RC.dataCirl=null;
             RC.dataRect=null;
             RC.dataPlg=null;
+            RC.zoom =false;
             RC.angleAdd=5;
             RC.dataLineMsg=null;
             if(typeof RC._anim==="function") RC._anim.stop();

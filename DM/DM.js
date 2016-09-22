@@ -294,12 +294,23 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					if(data[1].qText==="1"){
 						var errorMsg =resultData[INV_INDEX+index_inv].data[0][9].qText;
 						var html='';
-						html+='<div class="icon" title="'+errorMsg+'">';
+						html+='<div title="'+errorMsg+'">';
 						html+='<svg width="40" height="60" >';
 						$(".rc-PointMsg .rc-invoice").addClass("error");
 						html+='<polygon points="0,0 10,0 8,20 2,20 "';
 						html+='style="fill:Red;stroke-width:1"/>';
 						html+='<rect height="6" width="6" x="2" y="22" style="fill: Red" />';
+						html+='</svg>';
+						html+='</div>';
+						$(".rc-PointMsg .icon").html(html);
+					}else {
+						var html='';
+						html+='<div class="icon" >';
+						html+='<svg width="40" height="60" >';
+						html+='<polyline points="5,10 10,20 30,0" stroke-linecap="butt"';
+						html+='style="fill:none;stroke:#64cad0;stroke-width:5"/>';
+						html+='</svg>';
+						html+='</div>';
 						$(".rc-PointMsg .icon").html(html);
 					}
 					$(".rc-PointMsg").show();
@@ -345,8 +356,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				//	html+='<p class="real"> '+data[5].qText+'</p>';
 			}
 			if(data[1].qText==="1"){
-			html+='<div class="icon" title="'+erorrMsg+'">';
-			html+='<svg width="40" height="60" >';
+				html+='<div class="icon" title="'+erorrMsg+'">';
+				html+='<svg width="40" height="60" >';
 				$(".rc-PointMsg .rc-invoice").addClass("error");
 				html+='<polygon points="0,0 10,0 8,20 2,20 "';
 				html+='style="fill:Red;stroke-width:1"/>';

@@ -16,7 +16,7 @@
 	opacity: 1;
 }
 .rc-container {
-	position: relative;
+	position: fixed;
 	display: block;
 	width: 100%;
 	background: -webkit-linear-gradient(#302f54 0%, #302f54 20%, #020204 100%) no-repeat; /* Safari 5.1 - 6.0 */
@@ -382,7 +382,22 @@
 	width: 0;
 }
 .qv-listbox li.serverOptional{
-	background: #ccc;
+	background: rgba(0,0,0,0);
+	color: #fff;
+}
+.qv-listbox li{
+	border-color: rgb(99,99,99);
+}
+.qv-listbox li.serverAlternative{
+	background: rgba(0,0,0,0);
+	color: #fff;
+}
+.qv-listbox li.serverSelectedExcluded, .qv-listbox li.serverExcludedLock, .qv-listbox li.serverExcluded{
+	background: rgba(0,0,0,0);
+	color: #aaa;
+}
+.qui-immidiateContextual .content,.qui-immidiateContextual .content .lui-search,.qui-immidiateContextual .qv-selection-toolbar{
+	background: rgb(21, 21, 45);
 }
 
 .rc-inv-list-c .company{
