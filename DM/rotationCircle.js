@@ -252,12 +252,11 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             //�¼�����
             bind();
             //����
-            RC.circle.on('dblclick dbltap',function(){
+            RC.circle.on('dblclick',function(){
                 if(!RC.zoom){
                     zoomCanvas();
                 }else{
                     RC.zoom = false;
-                    RC.circle.on('click tap',circleClick);
                     RC.reStart();
                 }
             });
@@ -363,12 +362,13 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 RC.group.controlled = true;
             });
             RC.stage.on('contentMousedown  contentTouchstart', function(evt) {
-                finger = evt.evt.touches.length;
-                if(finger>1){
+
+                finger = !evt.evt.touches||evt.evt.touches.length;
+                if(finger&&finger>1){
                     var touch1 = evt.evt.touches[0];
                     var touch2 = evt.evt.touches[1];
                     if(touch1 && touch2) {
-                        startDist = getDistance({
+                        startDist = getFingerDistance({
                             x: touch1.clientX,
                             y: touch1.clientY
                         }, {
@@ -387,12 +387,12 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 }
             });
             RC.stage.on('contentMousemove contentTouchmove', function(evt) {
-                finger = evt.evt.touches.length;
-                if(finger>1){
+                finger = !evt.evt.touches||evt.evt.touches.length;
+                if(finger&&finger>1){
                     var touch1 = evt.evt.touches[0];
                     var touch2 = evt.evt.touches[1];
                     if(touch1 && touch2) {
-                        lastdist = getDistance({
+                        lastdist = getFingerDistance({
                             x: touch1.clientX,
                             y: touch1.clientY
                         }, {
@@ -407,15 +407,15 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                         var mousePos = RC.stage.getPointerPosition();
                         var x = RC.group.getX() - mousePos.x;
                         var y = RC.group.getY() - mousePos.y;
-                        var rotaAngle = (Math.atan(y / x) - startAngle) * 0.4;
-                        var setRota = rotaAngle;
+                        var rotaAngle = (Math.atan(y / x) - startAngle) * 1;
+                        var setRota = rotaAngle*0.04;
                         RC.angleReturn += rotaAngle;
                         RC.group.rotate(setRota);
                     }
                 }
             });
             RC.stage.on('contentMouseup contentTouchend', function(evt) {
-                if(finger>1){
+                if(finger&&finger>1){
                     if(lastdist<startDist){
                         RC.zoom = false;
                         RC.reStart();
@@ -434,11 +434,11 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                     }
                 }
             });
-            RC.stage.on("click tap",function(evt){
+            RC.stage.on("click dbltap",function(evt){
                 var shape = evt.target;
                 RC.clickPoint(shape);
             });
-            RC.stage.on("mouseover",function(evt){
+            RC.stage.on("mouseover tap",function(evt){
                 var shape = evt.target;
                 if(shape._id!="4"){
                     color= shape.getAttrs("stroke").stroke;

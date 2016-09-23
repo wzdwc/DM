@@ -73,8 +73,9 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	};
 
 	//open apps -- inserted here --
-	var app = qlik.openApp('MyProject.qvf', config);
-	//var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version
+	//var app = qlik.openApp('MyProject.qvf', config);
+	var app = qlik.openApp('4e38cf7f-713f-408f-bbc2-d278b811d730', config);    //Server Version
+	//var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version  secrecy data
 
 	function commafy(num) {
 		//1.先去除空格,判断是否空值和非数
@@ -246,9 +247,9 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					$(".rc-PointMsg .sec-title").html("AMOUNT");
 					$(".rc-PointMsg .thir-title").html("CURRENCY");
 					$(".rc-PointMsg .f-val").html(data[2].qText);
-					$(".rc-PointMsg .sec-val").html(commafy(parseInt(data[4].qText)>0?data[4].qText:-1*parseInt(data[4].qText)));
+					$(".rc-PointMsg .sec-val").html(commafy(parseFloat(data[4].qText)>0?data[4].qText:-1*parseFloat(data[4].qText)));
 					$(".rc-PointMsg .thir-val").html(data[3].qText);
-					$(".rc-PointMsg .count").html(commafy(parseInt(data[4].qText)>0?data[4].qText:-1*parseInt(data[4].qText)));
+					$(".rc-PointMsg .count").html(data[6].qText+commafy(parseFloat(data[4].qText)>0?data[4].qText:-1*parseFloat(data[4].qText)));
 				}
 				if(clickType=="2"){
 					console.log("2",resultData[RC_INDEX+index_rc]);
@@ -262,7 +263,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					$(".rc-PointMsg .f-val").html(data[5].qText);
 					$(".rc-PointMsg .sec-val").html(data[2].qText);
 					$(".rc-PointMsg .thir-val").html(data[3].qText);
-					$(".rc-PointMsg .count").html(parseInt(data[4].qText)>0?commafy(data[4].qText):commafy(-1*parseInt(data[4].qText)));
+					$(".rc-PointMsg .count").html(data[8].qText+commafy(parseFloat(data[4].qText)>0?data[4].qText:-1*parseFloat(data[4].qText)));
 				}
 				if(clickType=="3"){
 					console.log("3",resultData[INV_INDEX+index_inv]);
@@ -276,7 +277,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					$(".rc-PointMsg .f-val").html(commafy(data[6].qText));
 					$(".rc-PointMsg .sec-val").html(commafy(data[4].qText));
 					$(".rc-PointMsg .thir-val").html(data[7].qText);
-					$(".rc-PointMsg .count").html(commafy(data[4].qText));
+					$(".rc-PointMsg .count").html(data[10].qText+commafy(parseFloat(data[4].qText)));
 				}
 				if(clickType=="line"){
 					$(".rc-container").css("position","fixed");
@@ -336,12 +337,16 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				html+='<div class="inv-msg">';
 				html += '<p><span>VENDOR_NUMBER</span><span>AMOUNT</span><span>CURRENCY</span> </p>';
 				html += '<p><span>'+data[2].qText+'</span><span>'+commafy(amount)+'</span><span>'+data[3].qText+'</span> </p>';
+				html+='</div>';
+				html+='<h2 class="count ">'+data[6].qText+commafy(count)+'</h2>';
 			}
 			if(type=="2") {
 				html+='<h4><span class="No">NO.'+data[0].qText+'</span><span class="date"></span></h4>';
 				html+='<div class="inv-msg">';
 				html += '<p><span>PO_Number</span><span>Inventory_Number</span><span>Transaction_Currency</span> </p>';
 				html += '<p><span>'+data[5].qText+'</span><span>'+data[2].qText+'</span><span>'+data[3].qText+'</span></p>';
+				html+='</div>';
+				html+='<h2 class="count ">'+data[8].qText+commafy(count)+'</h2>';
 			}
 			if(type=="3") {
 				html+='<h3 class="company">'+data[5].qText+'</h3>';
@@ -349,9 +354,10 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				html+='<div class="inv-msg">';
 				html += '<p><span>TOTAL_AMOUNT</span><span>GROSS_AMOUNT</span><span>CURRENCY</span> </p>';
 				html += '<p><span>'+data[6].qText+'</span><span>'+commafy(data[4].qText) +'</span><span>'+data[7].qText+'</span> </p>';
+				html+='</div>';
+				html+='<h2 class="count ">'+data[10].qText+commafy(count)+'</h2>';
 			}
-			html+='</div>';
-			html+='<h2 class="count ">'+commafy(count)+'</h2>';
+
 			if(type=="1"){
 				//	html+='<p class="real"> '+data[5].qText+'</p>';
 			}
@@ -427,6 +433,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				console.log("clear interval");
 				console.time("happy");
 				console.log("resultData:",resultData);
+				$(".percent").html("");
 				findError = searcherror(resultData);
 				RC.RotateCircle({
 					dataCirl:resultData[INV_INDEX+index_inv],
@@ -466,6 +473,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			console.log("comin interval");
 			isClickPoint =false;
 		}else{
+			$(".percent").html(100*parseFloat(1- inv_percent).toFixed(2)+'%');
 			rcX.RotateCircle({
 				data:[po_percent,re_percent,inv_percent],
 				ele_id:"rc_canvas",
@@ -563,15 +571,16 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	}
 
 	//get objects -- inserted here --
-	app.getObject('QV01','HszeAa');
-	//app.getObject('QV01','FhhGD');				// server version
+	//app.getObject('QV01','HszeAa');
+	//app.getObject('QV01','FhhGD');				// server version  secrecy data
+	app.getObject('QV01','tshDcj');				 //
 
 	//create cubes and lists -- inserted here --
 	app.createCube({
 		"qInitialDataFetch": [
 			{
 				"qHeight": 400,
-				"qWidth": 10
+				"qWidth": 11
 			}
 		],
 		"qDimensions": [
@@ -710,7 +719,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			{
 				"qDef": {
 					"qFieldDefs": [
-						"CURRENCY"
+						"CURRENCY-currency"
 					]
 				},
 				"qNullSuppression": false,
@@ -757,6 +766,23 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					},
 					"qOtherLimitMode": "OTHER_GE_LIMIT"
 				}
+			},
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"Invoice_transcode"
+					]
+				},
+				"qNullSuppression": false,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": false,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
 			}
 
 		],
@@ -772,7 +798,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		"qInitialDataFetch": [
 			{
 				"qHeight": 400,
-				"qWidth": 8
+				"qWidth": 9
 			}
 		],
 		"qDimensions": [
@@ -911,6 +937,23 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					},
 					"qOtherLimitMode": "OTHER_GE_LIMIT"
 				}
+			},
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"Receipt_transcode"
+					]
+				},
+				"qNullSuppression": false,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": false,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
 			}
 		],
 		"qMeasures": [],
@@ -924,7 +967,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		"qInitialDataFetch": [
 			{
 				"qHeight": 400,
-				"qWidth": 6
+				"qWidth": 7
 			}
 		],
 		"qDimensions": [
@@ -1017,6 +1060,23 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				"qDef": {
 					"qFieldDefs": [
 						"Vendor_Name"
+					]
+				},
+				"qNullSuppression": false,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": false,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
+			},
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"PO_transcode"
 					]
 				},
 				"qNullSuppression": false,
