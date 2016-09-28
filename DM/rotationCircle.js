@@ -252,7 +252,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             //�¼�����
             bind();
             //����
-            RC.circle.on('dblclick',function(){
+            RC.circle.on('dblclick ',function(){
                 if(!RC.zoom){
                     zoomCanvas();
                 }else{
@@ -440,6 +440,18 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             });
             RC.stage.on("mouseover tap",function(evt){
                 var shape = evt.target;
+                RC.group.children.each(function(child){
+                    if(child.getType()!="Group"){
+                        child.setAttrs({
+                            shadowBlur: 0
+                        });
+                    }else {
+                        child.children[0].setAttrs({
+                            shadowBlur: 0
+                        });
+                    }
+
+                });
                 if(shape._id!="4"){
                     color= shape.getAttrs("stroke").stroke;
                     //console.log(shape.getAttrs("stroke").stroke);

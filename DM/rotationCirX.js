@@ -54,12 +54,12 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
             po_group = new Konva.Group({
                 x:0,
                 y:0,
-                rotation:Math.PI/180*-85
+                rotation:Math.PI/180*35
             });
             rc_group = new Konva.Group({
                 x:0,
                 y:0,
-                rotation:Math.PI/180*35
+                rotation:Math.PI/180*-85
             });
             inv_group = new Konva.Group({
                 x:0,
@@ -79,7 +79,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 innerRadius: 350,
                 outerRadius: 350,
                 angle: Math.PI/180*110,
-                rotation:Math.PI/180*-85,
+                rotation:Math.PI/180*35,
                 stroke: '#384060',
                 strokeWidth: 1
             });
@@ -113,7 +113,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
                 innerRadius: 350,
                 outerRadius: 350,
                 angle: Math.PI/180*110,
-                rotation:Math.PI/180*35,
+                rotation:Math.PI/180*-85,
                 stroke: '#384060',
                 strokeWidth: 1
             });

@@ -46,11 +46,13 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	var index_inv =0;
 	var index_ip_line =0;
 	var index_rp_line =0;
+	var index_error =0;
 	var IP_LINE_INDEX ="ip_line";
 	var RP_LINE_INDEX ="rp_line";
 	var PO_INDEX ="po_line";
 	var RC_INDEX ="rc";
 	var INV_INDEX ="inv";
+	var ERROR_INDEX ="error";
 	var selectName ={
 		1:{name:'po_number'},
 		2:{name:'Document_Number(receipt_no)'},
@@ -64,17 +66,17 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		'INVOICE_NO':0
 	};
 	var selectMsg ={
-		inv_error:{name:'invoice（发票信息）.error_flag',value:'1'},
-		inv_real:{name:'invoice（发票信息）.error_flag',value:'0'},
-		rc_error:{name:'receipt(receipt信息表).error_flag',value:'1'},
-		rc_real:{name:'receipt(receipt信息表).error_flag',value:'0'},
-		po_error:{name:'po(订单信息).error_flag',value:'1'},
-		po_real:{name:'po(订单信息).error_flag',value:'0'}
+		inv_error:{name:'invoice（发票信息）.is_error',value:'1'},
+		inv_real:{name:'invoice（发票信息）.is_error',value:'0'},
+		rc_error:{name:'receipt(receipt信息表).is_error',value:'1'},
+		rc_real:{name:'receipt(receipt信息表).is_error',value:'0'},
+		po_error:{name:'po(订单信息).is_error',value:'1'},
+		po_real:{name:'po(订单信息).is_error',value:'0'}
 	};
 
 	//open apps -- inserted here --
-	//var app = qlik.openApp('MyProject.qvf', config);
-	var app = qlik.openApp('4e38cf7f-713f-408f-bbc2-d278b811d730', config);    //Server Version
+	var app = qlik.openApp('MyProject2.qvf', config);
+	//var app = qlik.openApp('4e38cf7f-713f-408f-bbc2-d278b811d730', config);    //Server Version
 	//var app = qlik.openApp('faa12978-d933-4115-b362-089b92bdcf7b', config);    //Server Version  secrecy data
 
 	function commafy(num) {
@@ -106,6 +108,24 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		}
 		return num;
 	}
+
+	(function () {
+		function showtTips($this) {
+			var X =$this.offset().top;
+			var Y = $this.offset().left;
+			$(".error-msg").css({
+				"top":X+20,
+				"left":Y+25
+			}).show();
+		}
+		$(".rc-inv-list-slide-body ").on("mouseover",".isError",function () {
+			showtTips($(this))
+		});
+		$(".rc-inv-list-slide-body ").on("mouseout",".isError",function () {
+			$(".error-msg").hide();
+		});
+	}());
+
 
 
 	(function () {
@@ -140,7 +160,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		var $li = that.parent().find("li");
 		var value =that.find(".No").html().split(".")[1];
 		var len = $li.length;
-		var index = parseInt(that.index())+1;
+		var index =len%2==0?parseInt(that.index())+1:parseInt(that.index());
 		var baseIndex=parseInt(len/2);
 		var left =index<baseIndex;
 		var moveDistance = len%2==0||len==1?(baseIndex -index+0.5)*420:(baseIndex -index)*420;
@@ -150,9 +170,11 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		that.parent().find("li").removeClass("active");
 		that.addClass("active");
 		move($this,moveDistance,left,baseDistance);
-		if(formSelect['po_number']==1) app.field('po_number').clear();
-		if(formSelect['Document_Number(receipt_no)']==1) app.field('Document_Number(receipt_no)').clear();
-		if(formSelect['INVOICE_NO']==1) app.field('INVOICE_NO').clear();
+		if(type==1){
+			if(formSelect['po_number']==1) app.field('po_number').clear();
+			if(formSelect['Document_Number(receipt_no)']==1) app.field('Document_Number(receipt_no)').clear();
+			if(formSelect['INVOICE_NO']==1) app.field('INVOICE_NO').clear();
+		}
 		app.field(name).selectMatch(value, true);
 		formSelect[name] =1;
 		isClickRect_Po =true;
@@ -195,7 +217,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			$("#rc_container").css("height",window.innerHeight);
 			$(".rc-lists").css("height",window.innerHeight);
 			$(".filter").css("height",window.innerHeight-200);
-			if(successTime!==0&&successTime%5===0&&!isClickPoint){
+			if(successTime!==0&&successTime%6===0&&!isClickPoint){
 				draw();
 			}
 		}).resize();
@@ -217,10 +239,9 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		});
 	}());
 
-
 	$(".cc").on('success' , function(data){
 		successTime ++;
-		if(successTime%5===0){
+		if(successTime%6===0){
 			if(isClear) {	isClear =false; return;	}
 			if(!isClickPoint){
 				//invoice receipt po percent
@@ -236,7 +257,6 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			}
 			else{
 				console.log("resultData:",resultData);
-
 				if(clickType=="1"){
 					console.log("1",resultData[PO_INDEX+index_po]);
 					var data = resultData[PO_INDEX+index_po].data[0];
@@ -277,7 +297,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					$(".rc-PointMsg .f-val").html(commafy(data[6].qText));
 					$(".rc-PointMsg .sec-val").html(commafy(data[4].qText));
 					$(".rc-PointMsg .thir-val").html(data[7].qText);
-					$(".rc-PointMsg .count").html(data[10].qText+commafy(parseFloat(data[4].qText)));
+					$(".rc-PointMsg .count").html(data[9].qText+commafy(parseFloat(data[4].qText)));
 				}
 				if(clickType=="line"){
 					$(".rc-container").css("position","fixed");
@@ -285,33 +305,31 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 					var poData= resultData[PO_INDEX+index_po].data;
 					var rpData= resultData[RC_INDEX+index_rc].data;
 					var invData= resultData[INV_INDEX+index_inv].data;
-					var errorMsg="";
-					if(invData[0][1].qText=="1") errorMsg =invData[0][9].qText;
-					if(!isClickRect_Po) getHtml(poData,1,errorMsg);
-					if(!isClickRect_Receipt) getHtml(rpData,2,errorMsg);
-					getHtml(invData,3,errorMsg);
+					if(invData[0][1].qText=="1") $(".error-msg ").html(getErrorMsg(invData[0][2].qText));
+					if(!isClickRect_Po) getHtml(poData,1);
+					if(!isClickRect_Receipt) getHtml(rpData,2);
+					getHtml(invData,3);
 					$(".rc-lists,.email").show();
 				}else{
 					if(data[1].qText==="1"){
-						var errorMsg =resultData[INV_INDEX+index_inv].data[0][9].qText;
+						var errorMsg =getErrorMsg(resultData[INV_INDEX+index_inv].data[0][2].qText);
+						//var errorMsg ="";
 						var html='';
-						html+='<div title="'+errorMsg+'">';
 						html+='<svg width="40" height="60" >';
 						$(".rc-PointMsg .rc-invoice").addClass("error");
 						html+='<polygon points="0,0 10,0 8,20 2,20 "';
 						html+='style="fill:Red;stroke-width:1"/>';
 						html+='<rect height="6" width="6" x="2" y="22" style="fill: Red" />';
 						html+='</svg>';
-						html+='</div>';
+						$(".rc-PointMsg .icon").addClass("isError");
 						$(".rc-PointMsg .icon").html(html);
+						$(".error-msg").html(errorMsg);
 					}else {
 						var html='';
-						html+='<div class="icon" >';
 						html+='<svg width="40" height="60" >';
 						html+='<polyline points="5,10 10,20 30,0" stroke-linecap="butt"';
 						html+='style="fill:none;stroke:#64cad0;stroke-width:5"/>';
 						html+='</svg>';
-						html+='</div>';
 						$(".rc-PointMsg .icon").html(html);
 					}
 					$(".rc-PointMsg").show();
@@ -319,11 +337,28 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			}
 		}
 	});
+	/**
+	 * get error massage
+	 * @method
+	 * @param {String} invoice ID
+	 */
+	function getErrorMsg(inv_id) {
+		var errorList = resultData[ERROR_INDEX+index_error].data;
+		var msg ="";
+		$.each(errorList,function(index,value){
+			if(value[0].qText ==inv_id){
+				var info = value[1].qText==""?value[2].qText:value[1].qText;
+				msg +='<p>'+info+'</p>';
+			}
+		});
+		console.log(msg);
+		return msg;
 
-	function getHtml(dataArray,type,erorrMsg){
+	}
+
+	function getHtml(dataArray,type){
 		var typeValue = {1:"po",2:"receipt",3:"invoice"};
 		var html = "";
-
 		$.each(dataArray,function(index,item){
 			var data = item;
 			var count =parseInt(data[4].qText)>0?data[4].qText:-1*parseInt(data[4].qText);
@@ -355,14 +390,13 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				html += '<p><span>TOTAL_AMOUNT</span><span>GROSS_AMOUNT</span><span>CURRENCY</span> </p>';
 				html += '<p><span>'+data[6].qText+'</span><span>'+commafy(data[4].qText) +'</span><span>'+data[7].qText+'</span> </p>';
 				html+='</div>';
-				html+='<h2 class="count ">'+data[10].qText+commafy(count)+'</h2>';
+				html+='<h2 class="count ">'+data[9].qText+commafy(count)+'</h2>';
 			}
-
 			if(type=="1"){
 				//	html+='<p class="real"> '+data[5].qText+'</p>';
 			}
 			if(data[1].qText==="1"){
-				html+='<div class="icon" title="'+erorrMsg+'">';
+				html+='<div class="icon isError">';
 				html+='<svg width="40" height="60" >';
 				$(".rc-PointMsg .rc-invoice").addClass("error");
 				html+='<polygon points="0,0 10,0 8,20 2,20 "';
@@ -389,38 +423,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			var that =$('.po .rc-inv-list-slide-body li:nth-child('+(index+1)+')');
 			clickBill(that);
 		}
-
 	}
 
-	function  searcherror(data) {
-		var flag = false;
-		var array = data[INV_INDEX+index_inv].data;
-		$.each(array,function () {
-			if(this[1].qText=="1"){
-				flag = true;
-				return false
-			}
-		});
-		if(!flag){
-			array = data[RC_INDEX+index_rc].data;
-			$.each(array,function () {
-				if(this[1].qText=="1"){
-					flag = true;
-					return false
-				}
-			});
-		}
-		if(!flag) {
-			array = data[PO_INDEX+index_po].data;
-			$.each(array, function () {
-				if (this[1].qText == "1") {
-					flag = true;
-					return false
-				}
-			});
-		}
-		return flag;
-	}
 
 	function draw(){
 		loadingShow();
@@ -434,7 +438,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 				console.time("happy");
 				console.log("resultData:",resultData);
 				$(".percent").html("");
-				findError = searcherror(resultData);
+				findError =resultData[ERROR_INDEX+index_error].data.length!=0;
 				RC.RotateCircle({
 					dataCirl:resultData[INV_INDEX+index_inv],
 					dataRect:resultData[RC_INDEX+index_rc],
@@ -473,7 +477,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			console.log("comin interval");
 			isClickPoint =false;
 		}else{
-			$(".percent").html(100*parseFloat(1- inv_percent).toFixed(2)+'%');
+			$(".percent").html(100*parseFloat(inv_percent).toFixed(2)+'%');
+			console.log(po_percent,re_percent,inv_percent);
 			rcX.RotateCircle({
 				data:[po_percent,re_percent,inv_percent],
 				ele_id:"rc_canvas",
@@ -502,6 +507,17 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 
 
 	//callbacks -- inserted here --
+	function errorList(reply, app){
+		index_error++;
+		console.log("errorList",reply);
+		resultData[ERROR_INDEX+index_error]={data:[],name:""};
+		resultData[ERROR_INDEX+index_error].data =reply.qHyperCube.qDataPages["0"].qMatrix;
+		resultData[ERROR_INDEX+index_error].name =reply.qHyperCube.qDimensionInfo[0].qFallbackTitle;
+		$(".cc").trigger('success');
+
+	}
+
+
 	function po_rece_line(reply, app){
 		index_rp_line++;
 		console.log("p_r_l",reply);
@@ -571,16 +587,16 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	}
 
 	//get objects -- inserted here --
-	//app.getObject('QV01','HszeAa');
+	app.getObject('QV01','HszeAa');
 	//app.getObject('QV01','FhhGD');				// server version  secrecy data
-	app.getObject('QV01','tshDcj');				 //
+	//app.getObject('QV01','tshDcj');				 //
 
 	//create cubes and lists -- inserted here --
 	app.createCube({
 		"qInitialDataFetch": [
 			{
-				"qHeight": 400,
-				"qWidth": 11
+				"qHeight": 300,
+				"qWidth": 10
 			}
 		],
 		"qDimensions": [
@@ -590,10 +606,10 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
                         "INVOICE_NO"
                     ]
                 },
-                "qNullSuppression": false,
+                "qNullSuppression": true,
                 "qOtherTotalSpec": {
                     "qOtherMode": "OTHER_OFF",
-                    "qSuppressOther": false,
+                    "qSuppressOther": true,
                     "qOtherSortMode": "OTHER_SORT_DESCENDING",
                     "qOtherCounted": {
                         "qv": "5"
@@ -604,7 +620,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			{
 				"qDef": {
 					"qFieldDefs": [
-						"invoice（发票信息）.error_flag"
+						"invoice（发票信息）.is_error"
 					]
 				},
 				"qNullSuppression": false,
@@ -624,10 +640,10 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
                         "R_OBJECT_ID-r_object_id"
                     ]
                 },
-                "qNullSuppression": false,
+                "qNullSuppression": true,
                 "qOtherTotalSpec": {
                     "qOtherMode": "OTHER_OFF",
-                    "qSuppressOther": false,
+                    "qSuppressOther": true,
                     "qOtherSortMode": "OTHER_SORT_DESCENDING",
                     "qOtherCounted": {
                         "qv": "5"
@@ -719,7 +735,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			{
 				"qDef": {
 					"qFieldDefs": [
-						"CURRENCY-currency"
+						"CURRENCY"
 					]
 				},
 				"qNullSuppression": false,
@@ -753,23 +769,6 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			{
 				"qDef": {
 					"qFieldDefs": [
-						"error_msg"
-					]
-				},
-				"qNullSuppression": false,
-				"qOtherTotalSpec": {
-					"qOtherMode": "OTHER_OFF",
-					"qSuppressOther": false,
-					"qOtherSortMode": "OTHER_SORT_DESCENDING",
-					"qOtherCounted": {
-						"qv": "5"
-					},
-					"qOtherLimitMode": "OTHER_GE_LIMIT"
-				}
-			},
-			{
-				"qDef": {
-					"qFieldDefs": [
 						"Invoice_transcode"
 					]
 				},
@@ -787,8 +786,8 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 
 		],
 		"qMeasures": [],
-		"qSuppressZero": false,
-		"qSuppressMissing": false,
+		"qSuppressZero": true,
+		"qSuppressMissing": true,
 		"qMode": "S",
 		"qInterColumnSortOrder": [3,0,1,2],
 		"qSortbyYValue":1,
@@ -797,7 +796,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 	app.createCube({
 		"qInitialDataFetch": [
 			{
-				"qHeight": 400,
+				"qHeight":1000,
 				"qWidth": 9
 			}
 		],
@@ -822,7 +821,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			{
 				"qDef": {
 					"qFieldDefs": [
-						"receipt(receipt信息表).error_flag"
+						"receipt(receipt信息表).is_error"
 					]
 				},
 				"qNullSuppression": false,
@@ -991,7 +990,7 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 			{
 				"qDef": {
 					"qFieldDefs": [
-						"po(订单信息).error_flag"
+						"po(订单信息).is_error"
 					]
 				},
 				"qNullSuppression": false,
@@ -1198,4 +1197,89 @@ require( ["js/qlik","../extensions/DM/rotationCircle","../extensions/DM/rotation
 		"qInterColumnSortOrder": [],
 		"qStateName": "$"
 	},po_rece_line);
+
+	app.createCube({
+		"qInitialDataFetch": [
+			{
+				"qHeight": 400,
+				"qWidth": 4
+			}
+		],
+		"qDimensions": [
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"R_OBJECT_ID-r_object_id"
+					]
+				},
+				"qNullSuppression": false,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": false,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
+			},
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"invoice_format_error_msg"
+					]
+				},
+				"qNullSuppression": true,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": true,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
+			},
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"format_error_msg"
+					]
+				},
+				"qNullSuppression": false,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": false,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
+			},
+			{
+				"qDef": {
+					"qFieldDefs": [
+						"error_flag"
+					]
+				},
+				"qNullSuppression": true,
+				"qOtherTotalSpec": {
+					"qOtherMode": "OTHER_OFF",
+					"qSuppressOther": true,
+					"qOtherSortMode": "OTHER_SORT_DESCENDING",
+					"qOtherCounted": {
+						"qv": "5"
+					},
+					"qOtherLimitMode": "OTHER_GE_LIMIT"
+				}
+			}
+		],
+		"qMeasures": [],
+		"qSuppressZero": false,
+		"qSuppressMissing": false,
+		"qMode": "S",
+		"qInterColumnSortOrder": [],
+		"qStateName": "$"
+	},errorList);
 });
