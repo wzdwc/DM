@@ -2,44 +2,61 @@
  * Created by wzdwc on 2016/8/24.
  */
 define(['./konva',"./requestAnimationFrame"],function(Konva) {
-
-    var _RC ={
-        // public
-        version: '1.0.2',
-        // private
-        layer:{},
-        stage:{},
-        group:{},
-        circle:{},
-        anim:function(){},
-        stop:false,
-        angleReturn:0,
-        angularSpeed :1000,
-        rotaAngle :0,
-        iscomplete:false,
-        complete:function(){
-        },
-        clickPoint:function(){
-        },
-        // RotateCircle void ()
-        RotateCircle:function(conf){
-                this.winW =conf.winW||window.innerWidth,
-                this.winH =conf.winH||window.innerHeight,
-                this.ele_id=conf.ele_id||"",
-                //data
-                this.data=conf.data|| [.5,.5,.5];
-                if (typeof conf.complete==="function") this.complete = conf.complete;
-                if (typeof conf.clickPoint==="function") this.clickPoint = conf.clickPoint;
-                this.init();
-        }
-    };
-
-    (function(){
+        /**
+         * @namespace _RC
+         */
+        var _RC ={
+            version: '1.0.2',
+            // private
+            layer:{},
+            stage:{},
+            group:{},
+            circle:{},
+            anim:function(){},
+            stop:false,
+            angleReturn:0,
+            angularSpeed :1000,
+            rotaAngle :0,
+            /**
+             * 动画初始化完成时执行回调函数
+             * @method
+             * @memberof _RC
+             */
+            complete:function(){
+            },
+            /**
+             * 点击圆圈的圆弧，执行回调
+             * @method
+             * @memberof _RC
+             */
+            clickPoint:function(){
+            },
+            /**
+             * 动画构造函数，初始化数据，执行动画。
+             * @method
+             * @memberof _RC
+             */
+            RotateCircle:function(conf){
+                    this.winW =conf.winW||window.innerWidth,
+                    this.winH =conf.winH||window.innerHeight,
+                    this.ele_id=conf.ele_id||"",
+                    //data
+                    this.data=conf.data|| [.5,.5,.5];
+                    if (typeof conf.complete==="function") this.complete = conf.complete;
+                    if (typeof conf.clickPoint==="function") this.clickPoint = conf.clickPoint;
+                    this.init();
+            }
+        };
+        /**
+         * 初始化
+         * @method
+         * @memberof _RC
+         */
         _RC.init =function(){
             var po_group,rc_group,inv_group,
                 Arc_po_in,Arc_po,Arc_rc,Arc_rc_in,Arc_inv,Arc_inv_in,
                 textpath_inv,textpath_rc,textpath_po;
-            Konva.angleDeg = false;
+            Konva.angleDeg = false;                                             //使用π进行角度设置
             //获取坐标�?
             this.stage = new Konva.Stage({
                 container: _RC.ele_id,
@@ -106,7 +123,6 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
             });
             po_group.add(Arc_po_in);
             po_group.add(Arc_po_in2);
-
             Arc_rc = new Konva.Arc({
                 x:0,
                 y:0,
@@ -224,10 +240,14 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
             bind();
             animate();
         };
-
-       var animate =function() {
+        /**
+         * 动画
+         * @method
+         * @memberof windows
+         */
+        var animate =function() {
             if(_RC.stop) {
-                _RC.group.rotate( -_RC.angleReturn);
+                _RC.group.rotate( -_RC.angleReturn);               //停止动画，返回初始位置。
                 _RC.layer.draw();
                 _RC.angleReturn =0;
                 return;
@@ -237,6 +257,12 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
            _RC.layer.draw();
            _RC.anim = requestAnimationFrame(animate);
         }
+
+        /**
+         * 绑定事件
+         * @method
+         * @memberof windows
+         */
         function bind(){
             _RC.stage.on('click tap',function(evt){
                 _RC.stop=true;
@@ -269,16 +295,18 @@ define(['./konva',"./requestAnimationFrame"],function(Konva) {
             });
         }
 
+        /**
+         * 清除所有动画、对象缓存
+         * @method
+         * @memberof _RC
+         */
         _RC.clear=function(){
             cancelAnimationFrame(_RC.anim);
-            var _element =document.getElementById("rc_canvas");
-            _element.innerHTML ="";
-            _RC.iscomplete =false;
+            var _element =document.getElementById(_RC.ele_id);
+            if(_RC.ele_id) _element.innerHTML ="";
             _RC.stop=false;
             _RC.rotaAngle=0;
             _RC.angleReturn=0;
         }
-    }());
-
     return _RC;
 });

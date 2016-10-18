@@ -1,9 +1,11 @@
 /**
- * Created by �� on 2016/8/15.
+ * Created by wzdwc on 2016/8/15.
  */
 define(['./konva',"./requestAnimationFrame"],function(Konva){
 
-    ///RotateCircle Namespace
+    /**
+     * @namespace _RC
+     */
     var RC ={
             // public
             version: '1.0.2',
@@ -12,21 +14,46 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             stage:{},
             group:{},
             circle:{},
+            /**
+             * 初始化圆动画
+             * @method
+             * @memberof RC
+             */
             anim:function(){},
+            /**
+             * 放大后动画
+             * @method
+             * @memberof RC
+             */
             _anim:{},
             stop:false,
             angleReturn:0,
             angularSpeed :1000,
+            //缩放倍数
             scaleGroup:2.5,
             rotaAngle :0,
             zoom :false,
+            //三个数据集间隔度数
             angleAdd:5,
-            anim_rotate:false,
+            /**
+             * 动画初始化完成时执行回调函数
+             * @method
+             * @memberof RC
+             */
             complete:function(){
             },
+            /**
+             * 点击圆点与线，执行回调
+             * @method
+             * @memberof RC
+             */
             clickPoint:function(){
             },
-            // RotateCircle void ()
+            /**
+             * 动画构造函数，初始化数据，执行动画。
+             * @method
+             * @memberof RC
+             */
             RotateCircle:function(conf){
                     this.winW =conf.winW||window.innerWidth,
                     this.winH =conf.winH||window.innerHeight,
@@ -46,10 +73,13 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
         };
 
 
-    // ҵ���߼�   private
+    // private
     (function(){
-        //var layer,stage,group,circle,anim,anim2,stop=false,angleReturn= 0,angularSpeed = 600,scaleGroup= 2,dblclick=false,rotaAngle = 0,anim_rotate=false;
-
+        /**
+         * 重新开始动画
+         * @method
+         * @memberof RC
+         */
         RC.reStart=function(){
                 this.group.scale({x:1/ this.scaleGroup,y:1/ this.scaleGroup});
                 this.group.x(this.winW/2);
@@ -70,42 +100,77 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 animate();
         };
 
-
-        function Coordinates(temp, index,len) {
+        /**
+         * 获取圆点坐标
+         * @method
+         * @memberof RC
+         * @param {object} coordinate：圆点对象
+         * @param {Number} index：当前的序号，
+         * @param {Number} len：这个数据集合长度
+         * @returns {object} coordinate
+         * @example
+         *  Coordinates(coordinate,0,20);
+         */
+        function Coordinates(coordinate, index,len) {
             var startX = 0, startY = 0, r = 300*RC.scaleGroup,angle;
-            angle = index==0?RC.angleAdd:110 / (len-1) * index+RC.angleAdd;     // һ��Բ�����λ�������5��
+            angle = index==0?RC.angleAdd:110 / (len-1) * index+RC.angleAdd;     //
             if(len==1){
                 angle =55+RC.angleAdd;
             }
             var k = Math.sin(2 * Math.PI / 360 * angle) * r;
             var j = Math.cos(2 * Math.PI / 360 * angle) * r;
-            temp.nextX = startX + k;
-            temp.nextY = startY - j;
-            temp.angle = angle;
-            return temp;
+            coordinate.nextX = startX + k;
+            coordinate.nextY = startY - j;
+            coordinate.angle = angle;
+            return coordinate;
         }
+
+        /**
+         * 获取
+         * @method
+         * @memberof RC
+         * @param {Array} pointArray：圆点数组
+         * @param {Number} type：第几部分数据
+         * @example
+         *  getCoordinates([],1);
+         */
         function getCoordinates(pointArray,type) {
             var data = pointArray.data?pointArray.data:null;
-            RC.angleAdd = (type-1)*120+5;                              //��һ�λ���ʼ�Ķ���
+            RC.angleAdd = (type-1)*120+5;
             for (var i = 0; i < data.length; i++) {
+                var startX = 0, startY = 0, r = 300*RC.scaleGroup,angle;
                 var temp ={
                     type:pointArray.type,
                     infoArr:data[i]
                 };
-                RC.dataFull.push(Coordinates(temp, i, data.length));
+                angle = i==0?RC.angleAdd:110 / (data.length-1) * i+RC.angleAdd;     //当首个点时，直接使用间隔角度；
+                if(data.length==1){                                                 //当数据只有一条时，居中
+                    angle =55+RC.angleAdd;
+                }
+                var k = Math.sin(2 * Math.PI / 360 * angle) * r;
+                var j = Math.cos(2 * Math.PI / 360 * angle) * r;
+                temp.nextX = startX + k;
+                temp.nextY = startY - j;
+                temp.angle = angle;
+                RC.dataFull.push(temp);
             }
-
         }
-
+        /**
+         * 绘制每个圆点
+         * @method
+         * @memberof RC
+         * @param {Object} pointObj：圆点对象
+         * @param {Boolean} isLast：是否最后一条数据
+         * @example
+         *  drawPoint(object,true);
+         */
         function drawPoint(pointObj,isLast) {
-            var temp = pointObj.infoArr;
-            var type = pointObj.type;
+            var temp = pointObj.infoArr,type = pointObj.type,box;
             var wedge = new Konva.Group({
                 rotation: 2 * Math.PI / 360 * (-90+pointObj.angle),
                 x: pointObj.nextX,
                 y: pointObj.nextY
             });
-            var box;
             if (type == 1) {
                 box = new Konva.RegularPolygon({
                     sides: 3,
@@ -156,7 +221,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                         y: 8
                     });
                     if(isLast) {
-                            animate();
+                           animate();
                            RC.complete();
                     }
                     wedge.add(cachedText);
@@ -167,17 +232,14 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             RC.group.add(wedge);
         }
 
-
+        /**
+         * 初始化函数
+         * @method
+         * @memberof RC
+         */
         RC.init= function(){
-            console.log("loading");
-            var loading = document.getElementById("rc_loading");
             var isLast=false;
-            loading.style.display = "block";
-            //�����л�
             Konva.angleDeg = false;
-            //��ȡ����ֵ
-            //if(this.dataPlg.length==0||this.dataRect.length==0||this.dataCirl.length==0)
-            //return;
             getCoordinates(this.dataPlg,1);
             getCoordinates(this.dataRect,2);
             getCoordinates(this.dataCirl,3);
@@ -232,26 +294,23 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 stroke: '#384060',
                 strokeWidth: 1
             });
-            //��ÿ����
+            //绘制圆点
             for (var i = 0; i < RC.dataFull.length; i++) {
                 var option = this.dataFull[i];
-                if(i==RC.dataFull.length-1)  isLast=true;
+                isLast=i==RC.dataFull.length-1;
                 drawPoint(option,isLast);
             }
-            //������
+            //绘制弧线
             getBCline(this.dataLine_IP.data,this.dataLine_IP.name);
             getBCline(this.dataLine_RP.data,this.dataLine_RP.name);
-            //console.log("lineMsg:",getLinePoint(this.dataLineMsg));
+
             this.group.add(Arc_po);
             this.group.add(Arc_rc);
             this.group.add(Arc_inv);
             this.layer.add( this.circle);
             this.layer.add( this.group);
             this.stage.add( this.layer);
-
-            //�¼�����
             bind();
-            //����
             RC.circle.on('dblclick ',function(){
                 if(!RC.zoom){
                     zoomCanvas();
@@ -262,11 +321,18 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             });
         };
 
+        /**
+         * 缩放
+         * @method
+         * @memberof RC
+         */
         function zoomCanvas() {
+            //去除原有的事件
             RC.stage.off('contentTouchstart');
             RC.stage.off('contentTouchmove');
             RC.stage.off('contentTouchend');
             RC.circle.off('click tap');
+
             var scale = 1;
             RC.circle.scale({x:scale,y:scale});
             RC.circle.x(440*RC.scaleGroup);
@@ -277,26 +343,29 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             RC.zoom=true;
             cancelAnimationFrame(RC.anim);
         }
+
+        /**
+         * 绑定相关事件
+         * @method
+         * @memberof RC
+         */
         function bind(){
-            var lastdist =0;
-            var startDist = 0;
-            function  circleClick() {
+            var lastdist =0;                        //touch结束距离
+            var startDist = 0;                          //touch起始距离
+            RC.circle.on('click tap',function () {
                 if(RC.stop){
                     RC.stop=false;
                     animate();
                 }else {
                     RC.stop= true;
                 }
-            }
-            RC.circle.on('click tap',circleClick);
+            });
             RC.stage.on('contentTouchend',function (evt) {
                 if(lastdist>startDist){
                     zoomCanvas();
                 }
-            //    $(".touch-msg").html("touchStartDistance: "+startDist+" endDistance: " +lastdist);
                 startDist =0;
             });
-
             RC.stage.on('contentTouchstart',function (evt) {
                 var touch1 = evt.evt.touches[0];
                 var touch2 = evt.evt.touches[1];
@@ -310,8 +379,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                     });
 
                 }
-            //    $(".touch-msg").html("touchStartDistance: "+startDist);
-            })
+            });
             RC.stage.on('contentTouchmove',function (evt) {
                 console.log(evt);
                 var touch1 = evt.evt.touches[0];
@@ -327,12 +395,20 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 }
             })
         }
-
+        /**
+         * Touch 手指直接距离
+         * @method
+         * @memberof Windows
+         */
         function getFingerDistance(p1, p2) {
             return Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.y - p1.y), 2));
         }
 
-
+        /**
+         * 动画事件
+         * @method
+         * @memberof Windows
+         */
        var animate=function() {
             if(RC.stop) {
                 RC.group.rotate( -RC.angleReturn);
@@ -344,19 +420,19 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
            RC.group.rotate( 2 * Math.PI / RC.angularSpeed);
            RC.angleReturn += 2 * Math.PI /RC.angularSpeed;
            RC.layer.draw();
-           //RC.stage.add(RC.layer);
            RC.anim = requestAnimationFrame(animate);
         };
 
+        /**
+         * drag圆事件，转动动画。
+         * @method
+         * @memberof Windows
+         */
         function dragWheel(){
-            var color =0;
+            var color =0,lastDist =0,startDist = 0,startAngle = 0,endAngle = 0,rotaAngle2=0,finger =0;
             RC.group.lastRotation = 0;
             RC.group.angularVelocity = 0;
             RC.group.controlled = false;
-            var lastdist =0;
-            var startDist = 0;
-            var startAngle = 0,endAngle = 0,rotaAngle2=0;
-            var finger =0;
             RC.stage.on('mousedown touchstart', function(evt) {
                 RC.group.angularVelocity = 0;
                 RC.group.controlled = true;
@@ -376,7 +452,6 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                             y: touch2.clientY
                         });
                     }
-                   // $(".touch-msg").html("start:"+"touchStartDistance: "+startDist+" endDistance: " +lastdist);
                 }else {
                     if (RC.group.controlled) {
                         var mousePos = RC.stage.getPointerPosition();
@@ -392,7 +467,7 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                     var touch1 = evt.evt.touches[0];
                     var touch2 = evt.evt.touches[1];
                     if(touch1 && touch2) {
-                        lastdist = getFingerDistance({
+                        lastDist = getFingerDistance({
                             x: touch1.clientX,
                             y: touch1.clientY
                         }, {
@@ -401,7 +476,6 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                         });
 
                     }
-                    //$(".touch-msg").html("touchStartDistance: "+startDist+" endDistance: " +lastdist);
                 }else {
                     if (RC.group.controlled) {
                         var mousePos = RC.stage.getPointerPosition();
@@ -420,17 +494,14 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                         RC.zoom = false;
                         RC.reStart();
                     }
-//                    $(".touch-msg").html("touchStartDistance: "+startDist+" endDistance1: " +lastdist);
                 }else {
                     RC.group.controlled = false;
                     var mousePos = RC.stage.getPointerPosition();
                     var x = RC.group.getX() - mousePos.x;
                     var y = RC.group.getY() - mousePos.y;
                     endAngle = Math.atan(y / x);
-                    // console.log("contentTouchend:"+rotaAngle2);
                     if (RC.group.angularVelocity == 0) {
                         rotaAngle2 += endAngle - startAngle;
-                        //   anim_rotate =false;
                     }
                 }
             });
@@ -454,7 +525,6 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 });
                 if(shape._id!="4"){
                     color= shape.getAttrs("stroke").stroke;
-                    //console.log(shape.getAttrs("stroke").stroke);
                     shape.setAttrs({
                         shadowColor: '#fff',
                         shadowBlur: 20,
@@ -466,7 +536,6 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             RC.stage.on("mouseout",function(evt){
                 var shape = evt.target;
                 if(shape._id!="4"){
-                   // console.log(color);
                     shape.setAttrs({
                         shadowBlur: 0
                     });
@@ -476,7 +545,15 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 animateWheel( RC.group, frame);
             },  RC.layer).start();
         }
-
+        /**
+         * drag动画加速
+         * @method
+         * @memberof Windows
+         * @param {Object} ele：转动结点
+         * @param {Object} frame：继承Konva.Animation
+         * @example
+         *  animateWheel(layer,frame);
+         */
         function animateWheel( ele, frame) {
             // 20% slow down per second
             var angularFriction = 0.2;
@@ -486,22 +563,37 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 ele.angularVelocity = (ele.getRotation() - ele.lastRotation) * 1000 / frame.timeDiff;
             }
             else {
-                // anim_rotate =true;
                 ele.rotate(frame.timeDiff * ele.angularVelocity / 1000);
                 RC.angleReturn += frame.timeDiff * ele.angularVelocity / 1000;
             }
             ele.lastRotation = ele.getRotation();
         }
 
-       // var i =0;
+        /**
+         * 获取二次曲线中间点
+         * @method
+         * @memberof Windows
+         * @param {Object} startPoint：起始点
+         * @param {Object} endPoint：结束点
+         * @example
+         *  getTension(startPoint,endPoint);
+         */
         function getTension(startPoint,endPoint){
-           // if(endPoint.nextY||endPoint.nextX) console.log("endPoint:",startPoint,i++);
-          //  if(startPoint.nextY||startPoint.nextX) console.log("startPointy:",startPoint);
             var cirPoint ={x:0,y:0};
             var centerPoint = {x:(startPoint.nextX+endPoint.nextX)*3/5,y:(startPoint.nextY+endPoint.nextY)*3/5};
             var Tension ={x:(cirPoint.x+centerPoint.x)*3/5,y:(centerPoint.y+cirPoint.y)*3/5};
             return Tension;
         }
+
+        /**
+         * 绘制二次曲线
+         * @method
+         * @memberof Windows
+         * @param {Array} lineArray：起始点
+         * @param {String} name：名称
+         * @example
+         *  getBCline(startPoint,"");
+         */
         function getBCline(lineArray,name){
             var linePoints =getLinePoint(lineArray,name);
             var tension,line,startPoint,endPoint,temp;
@@ -510,7 +602,6 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 startPoint = RC.dataFull[temp.sIndex];
                 endPoint = RC.dataFull[temp.eIndex];
                 tension= getTension(startPoint,endPoint);
-                console.log("name:",temp.Name,"id",temp.id);
                 line =new Konva.Line({
                     points: [startPoint.nextX*.95,startPoint.nextY *.95,tension.x,tension.y,endPoint.nextX *.95,endPoint.nextY *.95],
                     stroke: temp.isError?'#f83f71':'#384060',
@@ -522,12 +613,20 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                 });
                 RC.group.add(line);
             }
-            console.timeEnd("drawline:");
         }
+
+        /**
+         * 获取二次曲线的起点与终点坐标
+         * @method
+         * @memberof Windows
+         * @param {Array} lineArray：曲线集合
+         * @param {String} name：名称
+         * @returns {object} linePoints
+         * @example
+         *  getLinePoint([],"");
+         */
         function getLinePoint(lineArray,name){
-            console.time("drawline:");
             var linePoints =new Array();
-            console.log("lineAarray:" ,lineArray);
             for(var i=0;i<lineArray.length;i++){
                 var opt ={
                     sIndex:-1,
@@ -544,12 +643,12 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
                             opt.sIndex = k;
                             opt.id=temp[0].qText;
                             opt.isError =opt.isError||temp_rc[1].qText==="1";
-                            if(opt.eIndex!=-1) break;         //find the start point when end point found break the "for"
+                            if(opt.eIndex!=-1) break;                            //当终点坐标已存在，跳出循环
                         }
                         if(temp[1].qText ==temp_rc[0].qText){
                             opt.eIndex = k;
                             opt.isError =opt.isError||temp_rc[1].qText==="1";
-                            if(opt.sIndex!=-1) break;        //find the end point when end start found break the "for"
+                            if(opt.sIndex!=-1) break;                            //当起点坐标存在，跳出循环
                         }
                     }
                 }
@@ -557,6 +656,12 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             }
             return linePoints;
         }
+
+        /**
+         * 清除所有动画、对象缓存
+         * @method
+         * @memberof _RC
+         */
         RC.clear=function(){
             //if(RC.group.scale) RC.reStart();
             cancelAnimationFrame(RC.anim);
@@ -575,9 +680,8 @@ define(['./konva',"./requestAnimationFrame"],function(Konva){
             RC.dataLineMsg=null;
             if(typeof RC._anim==="function") RC._anim.stop();
             RC.angleReturn=0;
-            var _element =document.getElementById("rc_canvas");
-            _element.innerHTML ="";
-            console.log("洗澡");
+            var _element =document.getElementById(RC.ele_id);
+            if(RC.ele_id) _element.innerHTML ="";
         }
     }());
     return RC;
